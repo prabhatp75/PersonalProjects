@@ -1,0 +1,52 @@
+[
+  {
+    "title": "scrum",
+    "description": "",
+    "dueDate": "2025-06-10T11:03",
+    "priority": "medium",
+    "category": "personal",
+    "id": "1749492211725",
+    "completed": false,
+    "createdAt": "2025-06-09T18:03:31.725Z"
+  },
+  {
+    "title": "wakeup",
+    "description": "",
+    "dueDate": null,
+    "priority": "medium",
+    "category": "personal",
+    "id": "1749455711472",
+    "completed": true,
+    "createdAt": "2025-06-09T07:55:11.472Z"
+  },
+  {
+    "title": "breakfast",
+    "description": "",
+    "dueDate": "2025-06-09T03:28",
+    "priority": "medium",
+    "category": "personal",
+    "id": "1749454141483",
+    "completed": true,
+    "createdAt": "2025-06-09T07:29:01.483Z"
+  },
+  {
+    "title": "wakeup",
+    "description": "",
+    "dueDate": null,
+    "priority": "medium",
+    "category": "personal",
+    "id": "1749454056789",
+    "completed": true,
+    "createdAt": "2025-06-09T07:27:36.789Z"
+  },
+  {
+    "title": "sleep",
+    "description": "",
+    "dueDate": null,
+    "priority": "medium",
+    "category": "personal",
+    "id": "1749454053631",
+    "completed": true,
+    "createdAt": "2025-06-09T07:27:33.631Z"
+  }
+]

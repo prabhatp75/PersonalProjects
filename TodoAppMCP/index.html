@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Todo Manager</h1>
+        </header>
+
+        <div class="todo-form">
+            <form id="todoForm">
+                <div class="form-row">
+                    <input type="text" id="todoTitle" placeholder="What needs to be done?" required>
+                    <button type="submit" class="add-btn">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+                <div class="form-row details">
+                    <textarea id="todoDescription" placeholder="Add description (optional)"></textarea>
+                    <div class="form-group">
+                        <label for="dueDate">Due Date:</label>
+                        <input type="datetime-local" id="dueDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority:</label>
+                        <select id="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category">
+                            <option value="personal" selected>Personal</option>
+                            <option value="work">Work</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="health">Health</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+            </div>
+            <div class="sort-group">
+                <select id="sortBy">
+                    <option value="date">Sort by Date</option>
+                    <option value="priority">Sort by Priority</option>
+                    <option value="category">Sort by Category</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="todo-list" id="todoList">
+            <!-- Todo items will be inserted here by JavaScript -->
+        </div>
+
+        <div class="todo-summary">
+            <span id="todoCount">0 items left</span>
+            <button id="clearCompleted">Clear Completed</button>
+        </div>
+    </div>
+    <script src="dataStore.js"></script>
+    <script src="app.js"></script>
+</body>
+</html> 
