@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-info">
+            <div class="player-info">
+                <div id="player-turn">White's Turn</div>
+                <div id="game-status"></div>
+            </div>
+            <div class="controls">
+                <button id="new-game">New Game</button>
+                <button id="undo-move">Undo Move</button>
+                <button id="flip-board">Flip Board</button>
+            </div>
+            <div class="game-settings">
+                <select id="difficulty">
+                    <option value="1">Beginner</option>
+                    <option value="2">Intermediate</option>
+                    <option value="3">Advanced</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="captured-pieces" id="captured-black"></div>
+            <div id="chessboard"></div>
+            <div class="captured-pieces" id="captured-white"></div>
+        </div>
+
+        <div class="game-info-bottom">
+            <div class="move-history">
+                <h3>Move History</h3>
+                <div id="move-list"></div>
+            </div>
+            <div class="evaluation-bar">
+                <div id="eval-bar-inner"></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/sounds.js"></script>
+    <script src="js/pieces.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
