@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ram Salaka Prashnavali</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f3e9; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #ccc; padding: 24px; }
+        h1 { text-align: center; color: #8d5524; }
+        .instructions { margin-bottom: 20px; text-align: center; }
+        .salaka-grid { display: grid; grid-template-columns: repeat(15, 1fr); gap: 2px; margin: 0 auto 24px auto; max-width: 600px; }
+        .salaka-cell { background: #fff; border: 1px solid #d2b48c; border-radius: 2px; padding: 6px 0; text-align: center; font-size: 1.1em; cursor: pointer; transition: background 0.2s; }
+        .salaka-cell.selected { background: #d9534f; color: #fff; font-weight: bold; }
+        .result { margin-top: 24px; padding: 16px; background: #fffbe6; border-radius: 6px; border: 2px solid #d9534f; min-height: 60px; box-shadow: 0 2px 8px #f5c6cb; }
+        .verse { font-size: 1.3em; color: #d9534f; font-weight: bold; margin-bottom: 8px; }
+        .result .meaning { color: #333; font-size: 1.1em; margin-top: 8px; }
+        .result .chopai { color: #7a4b00; font-size: 1.1em; margin: 8px 0; }
+        .reset-btn { margin: 20px auto 0 auto; display: block; background: #d9534f; color: #fff; border: none; border-radius: 5px; padding: 10px 24px; font-size: 1em; cursor: pointer; }
+        .reset-btn:hover { background: #c9302c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>राम शलाका प्रश्नावली</h1>
+        <div class="instructions">
+            <p>मन में श्रीराम का स्मरण कर प्रश्न सोचें, फिर नीचे दिए गए ग्रिड में किसी भी अक्षर पर क्लिक करें।</p>
+        </div>
+        <div class="salaka-grid" id="salakaGrid"></div>
+        <button class="reset-btn" id="resetBtn" style="display:none;">नया प्रश्न</button>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        // Ram Shalaka grid (15x15) as per Ramcharitmanas Prashnavali (from Ram Shalaka1.jpg)
+        const gridLetters = [
+  ['र','ऊ','फ','स','ि','ह','ो','म','ु','न','ि','स','ु','न','ग'],
+  ['स','ु','च','स','ो','ग','स','ु','र','ह','न','न','ा','ग','ो'],
+  ['त्य','स','न','च','ु','जो','म','र','स','अ','की','हो','स','ा','रा'],
+  ['त','र','स','ी','म','ा','स','ं','ग','हो','से','स','ु','र','म'],
+  ['म','का','ा','प','ू','र','ण','प','र','म','ा','र','थ','र','घ'],
+  ['ु','व','र','ज','ा','स','ज','ग','म','ग','न','स','ु','ख','र'],
+  ['ा','स','ी','ब','ु','ध','ह','ि','य','ं','ज','ा','स','ज','ग'],
+  ['म','ग','न','स','ु','ख','द','ा','य','क','प','र','स','प','र'],
+  ['ह','ि','त','ब','ु','ध','व','ि','द','ि','त','ब','र','न','न'],
+  ['र','म','ु','ज','ा','न','ह','ि','प','र','म','प','द','न','ी'],
+  ['क','े','न','स','ु','ख','म','य','स','ा','ध','न','स','ु','ज'],
+  ['स','भ','ु','ग','ु','ण','ग','र','ि','स','ु','ख','र','ा','स'],
+  ['ा','य','न','न','र','म','ु','न','ि','ब','ी','र','ु','र','ि'],
+  ['द','य','ा','ल','ी','ल','ा','क','ु','ं','ज','ब','न','र','त'],
+  ['स','ु','ख','म','ं','द','ि','र','म','ं','द','स','ु','र','क']
+];
+
+        const ramShalakaAnswers = [
+  {
+    id: 1,
+    chaupai: "जै राम जी की कृपा बल, सब विधि सुलभ सुपंथ।",
+    meaning: "Your wish will come true. You are on the right path. Continue your effort with faith in Rama.",
+  },
+  {
+    id: 2,
+    chaupai: "भय बिनु होइ न प्रीति, चलहु राम कहि हेत।",
+    meaning: "Success will come but with effort and discipline. Respect the process.",
+  },
+  {
+    id: 3,
+    chaupai: "धीरज धर्म मित्र अरु नारी, आपद काल परखिए चारी।",
+    meaning: "Stay patient and honest. Your true support system will reveal itself in hard times.",
+  },
+  {
+    id: 4,
+    chaupai: "जहँ लगि राम नाम गुन गाना। सो काजु कठिन नहि त्रैलोक्य मं जाना॥",
+    meaning: "Chanting Lord Rama’s name will make even the most difficult task easy.",
+  },
+  {
+    id: 5,
+    chaupai: "जाकें रही भावना जैसी, प्रभु मूरत देखी तिन तैसी।",
+    meaning: "What you believe will manifest. Purify your thoughts for better outcomes.",
+  },
+  {
+    id: 6,
+    chaupai: "सुनहु राम रघुवर पुर कथा, हरि नाम बिनु भव नहिं त्राता।",
+    meaning: "You are in emotional or spiritual difficulty. Seek divine guidance.",
+  },
+  {
+    id: 7,
+    chaupai: "कीन्हेहु बहुत दिन करि बिचार। अब बिलंब काहे करहु पुकार॥",
+    meaning: "You’ve delayed a decision long enough. Act now.",
+  },
+  {
+    id: 8,
+    chaupai: "तुलसी विश्वास राम कर, गावत मंगल गान।",
+    meaning: "Victory is near. Trust in Rama’s grace and remain optimistic.",
+  },
+  {
+    id: 9,
+    chaupai: "करहु सो धीरज धरि मन माहीं। सफलता निसिचर सम हरि पाहीं॥",
+    meaning: "Be calm and composed. Even adversities will be removed with divine help.",
+  }
+];
+
+        // Generate the grid
+        const grid = document.getElementById('salakaGrid');
+        let selected = false;
+
+        function getRandomAnswer() {
+            // Traditionally, the answer is based on the row and column, but for demo, random
+            return answers[Math.floor(Math.random() * answers.length)];
+        }
+
+        function showResult(answer) {
+            document.getElementById('result').innerHTML = `<div class="verse">${answer.chaupai}</div><div class="meaning">${answer.meaning}</div>`;
+        }
+
+        function resetGrid() {
+            grid.innerHTML = '';
+            document.getElementById('result').innerHTML = '';
+            selected = false;
+            document.getElementById('resetBtn').style.display = 'none';
+            createGrid();
+        }
+
+        // Update grid rendering for 15x15
+        function createGrid() {
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = 'repeat(15, 1fr)';
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'salaka-cell';
+                    cell.textContent = gridLetters[i][j] || '';
+                    cell.addEventListener('click', function() {
+                        if (selected || !cell.textContent.trim()) return;
+                        cell.classList.add('selected');
+                        selected = true;
+                        // Map to answer by (row + col) % 9
+                        const answerIdx = ((i + j) % 9);
+                        const answer = ramShalakaAnswers[answerIdx];
+                        showResult(answer);
+                        document.getElementById('resetBtn').style.display = 'block';
+                    });
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', resetGrid);
+        createGrid();
+    </script>
+</body>
+</html>

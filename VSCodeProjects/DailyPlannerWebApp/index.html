@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg, #f4f4f4);
+            color: var(--text, #222);
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px 18px 18px 18px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .nav button {
+            background: #0078d7;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .nav .date {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .theme-switch {
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        .search-bar {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .search-bar select {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .planner {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .hour-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 8px 6px;
+            transition: background 0.2s;
+        }
+        .hour-label {
+            width: 60px;
+            font-weight: bold;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .task {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .task input[type="text"] {
+            width: 100%;
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #0078d7;
+            font-size: 1em;
+        }
+        .task-completed {
+            background: #d4edda !important;
+        }
+        .task-missed {
+            background: #f8d7da !important;
+        }
+        .task-pending {
+            background: #fff3cd !important;
+        }
+        .notes {
+            margin-top: 16px;
+        }
+        .notes textarea {
+            width: 100%;
+            min-height: 50px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+        .progress-bar {
+            margin: 16px 0 8px 0;
+            background: #eee;
+            border-radius: 6px;
+            height: 18px;
+            overflow: hidden;
+        }
+        .progress {
+            background: #0078d7;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .quick-add {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+        }
+        .quick-add input {
+            flex: 1;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .quick-add select {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .quick-add button {
+            background: #0078d7;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .print-btn, .export-btn {
+            margin-right: 8px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 8px 2px 8px 2px;
+            }
+            .hour-label {
+                width: 40px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            Daily Planner
+            <canvas id="progressPie" width="130" height="130" style="background:transparent;"></canvas>
+        </h1>
+        <div class="nav">
+            <button id="prevDay">&lt; Prev</button>
+            <span class="date" id="currentDate"></span>
+            <button id="nextDay">Next &gt;</button>
+            <span class="theme-switch" id="themeSwitch" title="Toggle theme"><i class="fas fa-moon"></i></span>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search tasks...">
+            <select id="filterStatus">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="missed">Missed</option>
+            </select>
+        </div>
+        <div class="quick-add">
+            <input type="text" id="quickTask" placeholder="Quick add task to multiple hours...">
+            <select id="quickHours" multiple>
+                <!-- JS will populate hours -->
+            </select>
+            <button id="quickAddBtn">Add</button>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="planner" id="planner">
+            <!-- JS will populate hourly rows -->
+        </div>
+        <div class="notes">
+            <label for="dayNotes"><b>Day Notes:</b></label>
+            <textarea id="dayNotes" placeholder="Add notes for the day..."></textarea>
+        </div>
+        <div style="margin-top: 16px; text-align: right;">
+            <button class="print-btn" id="printBtn"><i class="fas fa-print"></i> Print</button>
+            <button class="export-btn" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

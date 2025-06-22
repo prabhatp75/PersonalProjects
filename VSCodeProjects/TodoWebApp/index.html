@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple TODO Web App</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 400px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        form { display: flex; flex-direction: column; margin-bottom: 16px; }
+        input[type="text"], input[type="date"], select { padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 16px; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        ul { list-style: none; padding: 0; }
+        li { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        li:last-child { border-bottom: none; }
+        .remove { background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+        .remove:hover { background: #a71d2a; }
+        .filter-buttons { display: flex; gap: 8px; margin-bottom: 12px; }
+        .filter-buttons button { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TODO List</h1>
+        <form id="todo-form">
+            <input type="text" id="todo-input" placeholder="Task title..." required />
+            <input type="text" id="todo-desc" placeholder="Description (optional)" />
+            <input type="date" id="todo-due" />
+            <select id="todo-priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button type="submit">Add</button>
+        </form>
+        <div class="filter-buttons">
+            <button id="filter-all">All</button>
+            <button id="filter-active">Active</button>
+            <button id="filter-completed">Completed</button>
+        </div>
+        <input type="text" id="search-input" placeholder="Search..." style="width:100%; padding:8px; margin-bottom:16px; border:1px solid #ccc; border-radius:4px;" />
+        <ul id="todo-list"></ul>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

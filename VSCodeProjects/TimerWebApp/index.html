@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6fb;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 320px;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      letter-spacing: 2px;
+    }
+    .timer-display {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+    }
+    .progress-bar {
+      width: 220px;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .progress {
+      height: 100%;
+      background: #4f8cff;
+      width: 0%;
+      transition: width 0.2s;
+    }
+    .inputs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .inputs input {
+      width: 2.5rem;
+      padding: 0.3rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .controls button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #4f8cff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .controls button:disabled {
+      background: #b0c7f7;
+      cursor: not-allowed;
+    }
+    @media (max-width: 500px) {
+      .container {
+        min-width: 90vw;
+        padding: 1rem 0.5rem;
+      }
+      .timer-display {
+        font-size: 2rem;
+      }
+      .progress-bar {
+        width: 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Timer App</h1>
+    <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+      <div>
+        <button id="modeBtn">Mode: Timer</button>
+        <button id="themeBtn">🌙</button>
+      </div>
+      <div>
+        <button id="addTimerBtn">+ Add Timer</button>
+      </div>
+    </div>
+    <div id="timersArea"></div>
+    <div style="margin-top:2rem;width:100%;">
+      <h3>Presets</h3>
+      <div id="presetsArea"></div>
+      <input id="presetName" placeholder="Preset name" style="width:60%">
+      <button id="savePresetBtn">Save Preset</button>
+    </div>
+    <div style="margin-top:2rem;width:100%;">
+      <h3>History</h3>
+      <ul id="historyArea" style="max-height:100px;overflow:auto;"></ul>
+    </div>
+    <audio id="alarmAudio" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+  </div>
+  <script>
+    // --- Theme ---
+    const themeBtn = document.getElementById('themeBtn');
+    let dark = false;
+    themeBtn.onclick = () => {
+      dark = !dark;
+      document.body.style.background = dark ? '#222' : '#f4f6fb';
+      document.body.style.color = dark ? '#f4f6fb' : '#222';
+      themeBtn.textContent = dark ? '☀️' : '🌙';
+    };
+
+    // --- Timer/Stopwatch Modes ---
+    let mode = 'timer'; // or 'stopwatch'
+    const modeBtn = document.getElementById('modeBtn');
+    modeBtn.onclick = () => {
+      mode = mode === 'timer' ? 'stopwatch' : 'timer';
+      modeBtn.textContent = `Mode: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
+      renderTimers();
+    };
+
+    // --- Multiple Timers ---
+    let timers = [];
+    let timerId = 0;
+    const timersArea = document.getElementById('timersArea');
+    function addTimer(preset) {
+      const id = timerId++;
+      timers.push({
+        id,
+        mode,
+        total: preset ? preset.total : 0,
+        left: preset ? preset.total : 0,
+        running: false,
+        paused: false,
+        laps: [],
+        label: preset ? preset.label : '',
+        interval: null,
+        startTime: null,
+        history: [],
+        sound: preset ? preset.sound : 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg',
+      });
+      renderTimers();
+    }
+    document.getElementById('addTimerBtn').onclick = () => addTimer();
+
+    // --- Presets ---
+    let presets = JSON.parse(localStorage.getItem('timer_presets')||'[]');
+    function savePresets() { localStorage.setItem('timer_presets', JSON.stringify(presets)); }
+    function renderPresets() {
+      const area = document.getElementById('presetsArea');
+      area.innerHTML = '';
+      presets.forEach((p,i) => {
+        const btn = document.createElement('button');
+        btn.textContent = p.label;
+        btn.onclick = () => addTimer(p);
+        area.appendChild(btn);
+      });
+    }
+    document.getElementById('savePresetBtn').onclick = () => {
+      const name = document.getElementById('presetName').value.trim();
+      if (!name) return;
+      const t = timers[0];
+      if (!t) return;
+      presets.push({label:name,total:t.total,sound:t.sound});
+      savePresets();
+      renderPresets();
+    };
+    renderPresets();
+
+    // --- History ---
+    let history = JSON.parse(localStorage.getItem('timer_history')||'[]');
+    function saveHistory() { localStorage.setItem('timer_history', JSON.stringify(history)); }
+    function renderHistory() {
+      const area = document.getElementById('historyArea');
+      area.innerHTML = '';
+      history.slice(-10).reverse().forEach(h => {
+        const li = document.createElement('li');
+        li.textContent = h;
+        area.appendChild(li);
+      });
+    }
+    renderHistory();
+
+    // --- Timer/Stopwatch UI ---
+    function renderTimers() {
+      timersArea.innerHTML = '';
+      timers.forEach((t, idx) => {
+        const div = document.createElement('div');
+        div.style = 'border:1px solid #ccc;border-radius:8px;padding:1rem;margin:1rem 0;position:relative;background:'+(dark?'#333':'#fafbff')+';';
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <b>${t.label||'Timer '+(t.id+1)}</b>
+            <button onclick="this.parentNode.parentNode.parentNode.remove();timers=timers.filter(x=>x.id!==${t.id});">✖️</button>
+          </div>
+          <div style="font-size:2rem;text-align:center;margin:1rem 0;">
+            <span id="disp${t.id}">${formatTime(t.left)}</span>
+          </div>
+          <div style="display:flex;gap:0.5rem;justify-content:center;align-items:center;">
+            <input type="number" id="h${t.id}" min="0" max="23" placeholder="HH" style="width:2.5rem;">
+            <span>:</span>
+            <input type="number" id="m${t.id}" min="0" max="59" placeholder="MM" style="width:2.5rem;">
+            <span>:</span>
+            <input type="number" id="s${t.id}" min="0" max="59" placeholder="SS" style="width:2.5rem;">
+            <button id="set${t.id}">Set</button>
+          </div>
+          <div style="margin:1rem 0;">
+            <progress id="prog${t.id}" value="${t.mode==='timer'?t.total-t.left:t.left}" max="${t.total||1}" style="width:100%;height:8px;"></progress>
+          </div>
+          <div style="display:flex;gap:0.5rem;justify-content:center;">
+            <button id="start${t.id}">${t.running ? (t.paused ? 'Resume':'Pause') : 'Start'}</button>
+            <button id="reset${t.id}">Reset</button>
+            ${t.mode==='stopwatch'?'<button id="lap'+t.id+'">Lap</button>':''}
+            <select id="sound${t.id}">
+              <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">Beep</option>
+              <option value="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg">Alarm Clock</option>
+              <option value="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">Digital Watch</option>
+            </select>
+          </div>
+          <div id="laps${t.id}" style="margin-top:0.5rem;"></div>
+        `;
+        timersArea.appendChild(div);
+        // Set events
+        document.getElementById('set'+t.id).onclick = () => {
+          let h = parseInt(document.getElementById('h'+t.id).value)||0;
+          let m = parseInt(document.getElementById('m'+t.id).value)||0;
+          let s = parseInt(document.getElementById('s'+t.id).value)||0;
+          t.total = h*3600+m*60+s;
+          t.left = t.total;
+          updateTimerUI(t);
+        };
+        document.getElementById('start'+t.id).onclick = () => toggleTimer(t);
+        document.getElementById('reset'+t.id).onclick = () => resetTimer(t);
+        if (t.mode==='stopwatch') {
+          document.getElementById('lap'+t.id).onclick = () => lapTimer(t);
+        }
+        document.getElementById('sound'+t.id).value = t.sound;
+        document.getElementById('sound'+t.id).onchange = e => { t.sound = e.target.value; };
+        renderLaps(t);
+      });
+    }
+    function updateTimerUI(t) {
+      const disp = document.getElementById('disp'+t.id);
+      if (disp) disp.textContent = formatTime(t.left);
+      const prog = document.getElementById('prog'+t.id);
+      if (prog) {
+        prog.max = t.total||1;
+        prog.value = t.mode==='timer'?t.total-t.left:t.left;
+      }
+    }
+    function formatTime(sec) {
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+    function toggleTimer(t) {
+      if (!t.running) {
+        t.running = true;
+        t.paused = false;
+        t.startTime = Date.now();
+        t.interval = setInterval(() => tick(t), 1000);
+      } else if (!t.paused) {
+        t.paused = true;
+        clearInterval(t.interval);
+      } else {
+        t.paused = false;
+        t.startTime = Date.now();
+        t.interval = setInterval(() => tick(t), 1000);
+      }
+      renderTimers();
+    }
+    function resetTimer(t) {
+      clearInterval(t.interval);
+      t.running = false;
+      t.paused = false;
+      t.left = t.mode==='timer'?t.total:0;
+      t.laps = [];
+      renderTimers();
+    }
+    function lapTimer(t) {
+      t.laps.push(t.left);
+      renderLaps(t);
+    }
+    function renderLaps(t) {
+      const lapsDiv = document.getElementById('laps'+t.id);
+      if (!lapsDiv) return;
+      lapsDiv.innerHTML = t.laps.map((l,i) => `<div>Lap ${i+1}: ${formatTime(l)}</div>`).join('');
+    }
+    function tick(t) {
+      if (t.mode==='timer') {
+        if (t.left > 0) {
+          t.left--;
+          updateTimerUI(t);
+          if (t.left === 0) {
+            clearInterval(t.interval);
+            t.running = false;
+            playAlarm(t.sound);
+            notify('Timer done!', t.label||'Timer');
+            history.push(`${new Date().toLocaleTimeString()}: ${t.label||'Timer'} finished`);
+            saveHistory();
+            renderHistory();
+            renderTimers();
+          }
+        }
+      } else {
+        t.left++;
+        updateTimerUI(t);
+      }
+    }
+    function playAlarm(url) {
+      const audio = document.getElementById('alarmAudio');
+      audio.src = url;
+      audio.play();
+    }
+    // --- Notifications ---
+    function notify(msg, title) {
+      if (Notification.permission === 'granted') {
+        new Notification(title, { body: msg });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') new Notification(title, { body: msg });
+        });
+      }
+    }
+    // --- Keyboard Shortcuts ---
+    document.addEventListener('keydown', e => {
+      if (e.key === 'n' && e.ctrlKey) addTimer();
+      if (e.key === 'p' && e.ctrlKey && timers[0]) toggleTimer(timers[0]);
+      if (e.key === 'r' && e.ctrlKey && timers[0]) resetTimer(timers[0]);
+    });
+    // --- Initial ---
+    addTimer();
+    renderTimers();
+  </script>
+</body>
+</html>
