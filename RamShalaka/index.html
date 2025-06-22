@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>श्री राम शलाका प्रश्नावली</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <main id="main-content">
+        <header class="main-header">
+            <h1>श्री राम शलाका प्रश्नावली</h1>
+            <p class="subtitle">Meditate on your question and click any letter on the grid for divine guidance.</p>
+            <div class="header-actions">
+                <a href="rules.html" class="rules-link">Read the Rules & Guidelines →</a>
+                <button id="reset-btn" class="hidden">Clear Result & Grid</button>
+            </div>
+        </header>
+
+        <section id="result-section">
+            <h2>The Divine Answer</h2>
+            <div id="result-card">
+                <div id="result-placeholder">
+                    <p>The divine answer will appear here once you click on the grid below.</p>
+                </div>
+                <div id="result-content" class="hidden">
+                    <div id="chaupai-container">
+                        <h3>The Verse (चौपाई)</h3>
+                        <p id="chaupai-text"></p>
+                    </div>
+                    <div id="conclusion-container">
+                        <h3>Conclusion (फल)</h3>
+                        <p id="conclusion-text"></p>
+                    </div>
+                    <div class="result-actions">
+                        <button id="speak-result-btn">🔊 Read Aloud</button>
+                        <button id="print-result-btn">📄 Print Result</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="grid-section">
+            <div id="grid-container"></div>
+        </section>
+
+    </main>
+
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-message"></p>
+            <button id="modal-close-btn">Close</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html> 
